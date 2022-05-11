@@ -12,21 +12,21 @@ def compute_ephemerality_measures(
 
     lower_threshold = (1. - threshold) / 2
     upper_threshold = 1 - lower_threshold
-    eph_10 = (cumulative_distribution_function >= lower_threshold).argmax()
-    eph_90 = (cumulative_distribution_function >= upper_threshold).argmax()
+    eph_lower = (cumulative_distribution_function >= lower_threshold).argmax()
+    eph_upper = (cumulative_distribution_function >= upper_threshold).argmax()
     topic_range = len(frequency_vector) - 1
     first_freq_index_above_zero = (frequency_vector > 0.).argmax()
     last_freq_index_above_zero = topic_range - np.flip(frequency_vector > 0.).argmax()
     topic_activity_range = last_freq_index_above_zero - first_freq_index_above_zero + 1
 
-    ephemerality_2_range = eph_90 - eph_10 + 1
+    ephemerality_2_range = eph_upper - eph_lower + 1
     ephemerality_2 = 1 - (ephemerality_2_range / topic_activity_range)
 
     freq_descending_order = np.sort(frequency_vector)[::-1]
     aux_cdf = np.cumsum(freq_descending_order)
-    eph4_80 = (aux_cdf >= threshold).argmax() + 1
+    eph4_thr = (aux_cdf >= threshold).argmax() + 1
     eph4_range = (freq_descending_order > 0.).argmin() + 1
-    ephemerality_4 = 1 - ((1 / 0.8) * (eph4_80 / eph4_range))
+    ephemerality_4 = 1 - ((1 / 0.8) * (eph4_thr / eph4_range))
 
     ephemeralities = {
         "ephemerality2": round(ephemerality_2, 2),

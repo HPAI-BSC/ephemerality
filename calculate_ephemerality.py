@@ -4,7 +4,7 @@ from src import compute_ephemerality_measures
 
 
 if __name__ == '__main__':
-    frequency_vector = sys.argv[1]
+    frequency_vector = json.loads(sys.argv[1])
     output_file = sys.argv[2]
 
     ephemeralities = compute_ephemerality_measures(frequency_vector=frequency_vector,
