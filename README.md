@@ -57,4 +57,4 @@ Output:
 
 ## References
 <a id="1">[1]</a>
-Gnatyshak, D., García-Gasulla, D., Alvarez-Napagao, S., Arjona, J., & Venturini, T. (2022). Healthy Twitter discussions? Time will tell. arXiv preprint arXiv:2203.11261
+Gnatyshak, D., Garcia-Gasulla, D., Alvarez-Napagao, S., Arjona, J., & Venturini, T. (2022). Healthy Twitter discussions? Time will tell. arXiv preprint arXiv:2203.11261
