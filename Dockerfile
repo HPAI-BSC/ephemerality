@@ -1,10 +1,12 @@
-FROM python:3.8.6
+FROM python:3.9.15
 
 ADD src /src
 ADD test /test
-ADD calculate_ephemerality.py /
+ADD ephemerality.py /
 ADD requirements.txt /
+ADD _version.py /
+ADD setup.py /
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "calculate_ephemerality.py"]
+ENTRYPOINT ["python", "ephemerality.py"]
