@@ -23,7 +23,7 @@ $$
 \varepsilon_{sort}\left(t_i\right) = 1 - \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} \widehat{t}_i \right) \ge \alpha}{N}
 $$
 
-### Requirements
+## Requirements
 The code was tested to work with Python 3.8.6 and Numpy 1.21.5, but is expected to also run on their older versions.
 
 ## How to run the experiments
