@@ -45,9 +45,14 @@ to 0.8.
 * **Print**. `[-p, --print]`. _Optional_. If output file is provided, forces the results to still be printed to stdout.
 
 ### Output
-If no output file specified or `-p` option is used, results are printed to STDOUT in **[ε<sub>orig</sub> 
-ε<sub>orig_span</sub> ε<sub>filtered</sub> ε<sub>filtered_span</sub> ε<sub>sorted</sub> ε<sub>sorted_span</sub>]**
-format, one line per each line of input file (or a single line for command line input).
+If no output file specified or `-p` option is used, results are printed to STDOUT in [
+$\varepsilon_{orig}$ ␣
+span( $\varepsilon_{orig}$ ) ␣
+$\varepsilon_{filt}$ ␣
+span( $\varepsilon_{filt}$ ) ␣
+$\varepsilon_{sort}$ ␣
+span( $\varepsilon_{sort}$ )
+] format, one line per each line of input file (or a single line for command line input).
 
 If the output file was specified among the input arguments, the results will be written into that file in JSON format as 
 a list of dictionaries, one per input line:
