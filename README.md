@@ -8,19 +8,19 @@ We defined 3 versions of ephemerality: original, filtered, and sorted. Let us su
 1. **Original ephemerality**. We calculate core activity as the minimal portion of $t$ starting from the beginning of the vector that contains at least $\alpha$ of the total activity (which is 1 in case of normalized $t$). Then the ephemerality formula can be computed as follows:
 
 $$
-\varepsilon_{orig}\left(t_i\right) = 1 - \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} t_i \right) \ge \alpha}{N}
+\varepsilon_{orig}\left(t_i\right) = 1 - \frac1\alpha \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} t_i \right) \ge \alpha}{N}
 $$
 
 2. **Filtered ephemerality**. We calculate core activity the minimal *central* portion of $t$ that contains at least $\alpha$ of the total activity. For that we exclude portions of $t$ from the beginning and the end of $t$, so that the sum of each of these portions is as close to $\frac{1-\alpha}{2}$ as possible without reaching it:
 
 $$
-\varepsilon_{filt}\left(t_i\right) = 1 - \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} t_i - \max_{p\in [1,N]}: \left( \sum_{j=1\dots p} t_j \right) < \frac{1-\alpha}{2} \right) \ge \alpha}{N}
+\varepsilon_{filt}\left(t_i\right) = 1 - \frac1\alpha \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} t_i - \max_{p\in [1,N]}: \left( \sum_{j=1\dots p} t_j \right) < \frac{1-\alpha}{2} \right) \ge \alpha}{N}
 $$
 
 3. **Sorted ephemerality**. Finally, we can define the core activity as the minimal number of time bins that cover $\alpha$ portion of the activity. For that we sort $t$ components in descending order (denoted as $\widehat{t}$) and then apply the formula of original ephemerality:
 
 $$
-\varepsilon_{sort}\left(t_i\right) = 1 - \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} \widehat{t}_i \right) \ge \alpha}{N}
+\varepsilon_{sort}\left(t_i\right) = 1 - \frac1\alpha \frac{\arg\min_{m\in [1,N]}: \left( \sum_{i=1\dots m} \widehat{t}_i \right) \ge \alpha}{N}
 $$
 
 ## Requirements
