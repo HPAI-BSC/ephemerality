@@ -3,7 +3,7 @@ import sys
 import json
 import argparse
 import numpy as np
-from src import compute_ephemeralities
+from src import compute_ephemerality
 
 
 HELP_INFO = ""
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     ephemerality_list = list()
     for frequency_vector in frequency_vectors:
-        ephemerality_list.append(compute_ephemeralities(frequency_vector=frequency_vector, threshold=threshold))
+        ephemerality_list.append(compute_ephemerality(frequency_vector=frequency_vector, threshold=threshold))
 
     if args.output:
         with open(args.output, 'w+') as f:
