@@ -1,3 +1,7 @@
 /tmp/
 /test/.pytest_cache/
 *.json
+*.pyc
+*.idea/
+/build/
+/venv/

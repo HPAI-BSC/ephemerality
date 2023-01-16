@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     ephemerality_list = list()
     for frequency_vector in frequency_vectors:
-        ephemerality_list.append(compute_ephemerality(frequency_vector=frequency_vector, threshold=threshold))
+        ephemerality_list.append(compute_ephemerality(frequency_vector=frequency_vector, threshold=threshold).dict())
 
     if args.output:
         with open(args.output, 'w+') as f:
