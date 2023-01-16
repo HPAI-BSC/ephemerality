@@ -1,5 +1,5 @@
-numpy==1.21.5
+numpy==1.24.1
 fastapi~=0.89.1
-setuptools~=59.6.0
-pydantic~=1.10.4
+setuptools==66.0.0
+pydantic==1.10.4
 uvicorn~=0.20.0
