@@ -6,7 +6,7 @@ import numpy as np
 from dataclasses import dataclass
 import re
 
-from src import compute_ephemerality
+from ephemerality import compute_ephemerality
 
 
 @dataclass
@@ -490,11 +490,11 @@ class TestComputeEphemerality(TestCase):
 
     def test_compute_ephemeralities(self):
         for i, test_case in enumerate(self._test_cases):
-            print(f'\nRunning test case {i}: {test_case.input_vector}, threshold {test_case.threshold}...')
+            print(f'\nRunning test case {i}: {test_case.input_sequence}, threshold {test_case.threshold}...')
             with warnings.catch_warnings(record=True) as warns:
                 warnings.simplefilter('always', category=RuntimeWarning)
 
-                actual_output = compute_ephemerality(frequency_vector=test_case.input_vector,
+                actual_output = compute_ephemerality(frequency_vector=test_case.input_sequence,
                                                      threshold=test_case.threshold)
 
                 self.assertEqual(self.round_ephemeralities(test_case.expected_output),

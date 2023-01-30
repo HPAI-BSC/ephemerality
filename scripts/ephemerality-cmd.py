@@ -3,7 +3,7 @@ import sys
 import json
 import argparse
 import numpy as np
-from src import compute_ephemerality
+from ephemerality import compute_ephemerality
 
 
 HELP_INFO = ""

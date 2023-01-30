@@ -1,5 +1,5 @@
 from typing import Sequence
-from src import compute_ephemerality, EphemeralitySet
+from ephemerality import compute_ephemerality, EphemeralitySet
 
 
 def get_all_ephemeralities(input_vector: Sequence[float], threshold: float) -> EphemeralitySet:

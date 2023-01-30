@@ -1,9 +1,9 @@
 FROM python:3.9.15-slim
 
-ADD src /src
+ADD ephemerality /src
 ADD test /test
 ADD rest /rest
-ADD ephemerality.py /
+ADD scripts/ephemerality-cmd.py /
 ADD requirements.txt /
 ADD _version.py /
 ADD setup.py /
