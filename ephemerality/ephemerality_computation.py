@@ -1,15 +1,34 @@
 import numpy as np
 from typing import Sequence
 from pydantic import BaseModel
-import warnings
 
 
 class EphemeralitySet(BaseModel):
-    """Class to contain ephemerality values by subtypes"""
-    left_core: float = None
-    middle_core: float = None
-    right_core: float = None
-    sorted_core: float = None
+    """Class to contain ephemerality core size values by subtypes"""
+    len_left_core: int | None = None
+    len_middle_core: int | None = None
+    len_right_core: int | None = None
+    len_sorted_core: int | None = None
+
+    eph_left_core: float | None = None
+    eph_middle_core: float | None = None
+    eph_right_core: float | None = None
+    eph_sorted_core: float | None = None
+
+
+def _check_threshold(threshold: float) -> bool:
+    if threshold <= 0.:
+        raise ValueError('Threshold value must be greater than 0!')
+
+    if threshold > 1.:
+        raise ValueError('Threshold value must be less or equal to 1!')
+
+    return True
+
+
+def _ephemerality_raise_error(threshold: float):
+    if _check_threshold(threshold):
+        raise ValueError('Input frequency vector has not been internally normalized (problematic data format?)!')
 
 
 def _normalize_frequency_vector(frequency_vector: Sequence[float]) -> np.array:
@@ -19,13 +38,6 @@ def _normalize_frequency_vector(frequency_vector: Sequence[float]) -> np.array:
         frequency_vector /= np.sum(frequency_vector)
         
     return frequency_vector
-
-
-def _ephemerality_raise_error(threshold: float):
-    if 0. < threshold <= 1:
-        raise ValueError('Input frequency vector has not been internally normalized!')
-    else:
-        raise ValueError('Threshold value is not within (0, 1] range!')
 
 
 def compute_left_core_length(frequency_vector: np.array, threshold: float) -> int:
@@ -81,15 +93,7 @@ def compute_sorted_core_length(frequency_vector: np.array, threshold: float) -> 
 
 
 def _compute_ephemerality_from_core(core_length: int, range_length: int, threshold: float):
-    return 1 - (core_length / range_length) / threshold
-
-
-def _check_threshold(threshold: float):
-    if threshold <= 0.:
-        raise ValueError('Threshold value must be greater than 0!')
-
-    if threshold > 1.:
-        raise ValueError('Threshold value must be less or equal to 1!')
+    return max(0., 1 - (core_length / range_length) / threshold)
 
 
 def compute_ephemerality(
@@ -99,76 +103,50 @@ def compute_ephemerality(
 
     _check_threshold(threshold)
 
-    if np.isclose(np.sum(frequency_vector), 0.):
-        return EphemeralitySet(
-            left_core=1.,
-            middle_core=1.,
-            right_core=1.,
-            sorted_core=1.
-        )
+    if np.sum(frequency_vector) == 0.:
+        raise ZeroDivisionError("Frequency vector's sum is 0!")
     
     frequency_vector = _normalize_frequency_vector(frequency_vector)
     range_length = len(frequency_vector)
 
     if types == 'all' or types == 'left':
-        left_core_length = compute_left_core_length(frequency_vector, threshold)
-        ephemerality_left_core = _compute_ephemerality_from_core(left_core_length, range_length, threshold)
-        if ephemerality_left_core < 0. and not np.isclose(ephemerality_left_core, 0.):
-            warnings.warn(f'Original ephemerality value is less than 0 ({ephemerality_left_core}) and is going to be rounded up! '
-                          f'This is indicative of the edge case in which ephemerality span is greater than '
-                          f'[threshold * input_vector_length], i.e. most of the frequency mass lies in a few vector '
-                          f'elements at the end of the frequency vector. Original ephemerality in this case should be '
-                          f'considered to be equal to 0. However, please double check the input vector!',
-                          RuntimeWarning)
-            ephemerality_left_core = 0.
+        length_left_core = compute_left_core_length(frequency_vector, threshold)
+        ephemerality_left_core = _compute_ephemerality_from_core(length_left_core, range_length, threshold)
     else:
+        length_left_core = None
         ephemerality_left_core = None
 
     if types == 'all' or types == 'middle':
-        middle_core_length = compute_middle_core_length(frequency_vector, threshold)
-        ephemerality_middle_core = _compute_ephemerality_from_core(middle_core_length, range_length, threshold)
-        if ephemerality_middle_core < 0. and not np.isclose(ephemerality_middle_core, 0.):
-            warnings.warn(f'Filtered ephemerality value is less than 0 ({ephemerality_middle_core}) and is going to be rounded up! '
-                          f'This is indicative of the edge case in which ephemerality span is greater than '
-                          f'[threshold * input_vector_length], i.e. most of the frequency mass lies in a few elements '
-                          f'at the beginning and the end of the frequency vector. Filtered ephemerality in this case should '
-                          f'be considered to be equal to 0. However, please double check the input vector!',
-                          RuntimeWarning)
-            ephemerality_middle_core = 0.
+        length_middle_core = compute_middle_core_length(frequency_vector, threshold)
+        ephemerality_middle_core = _compute_ephemerality_from_core(length_middle_core, range_length, threshold)
     else:
+        length_middle_core = None
         ephemerality_middle_core = None
 
     if types == 'all' or types == 'right':
-        right_core_length = compute_right_core_length(frequency_vector, threshold)
-        ephemerality_right_core = _compute_ephemerality_from_core(right_core_length, range_length, threshold)
-        if ephemerality_right_core < 0. and not np.isclose(ephemerality_right_core, 0.):
-            warnings.warn(f'Original ephemerality value is less than 0 ({ephemerality_right_core}) and is going to be rounded up! '
-                          f'This is indicative of the edge case in which ephemerality span is greater than '
-                          f'[threshold * input_vector_length], i.e. most of the frequency mass lies in a few vector '
-                          f'elements at the end of the frequency vector. Original ephemerality in this case should be '
-                          f'considered to be equal to 0. However, please double check the input vector!',
-                          RuntimeWarning)
-            ephemerality_right_core = 0.
+        length_right_core = compute_right_core_length(frequency_vector, threshold)
+        ephemerality_right_core = _compute_ephemerality_from_core(length_right_core, range_length, threshold)
     else:
+        length_right_core =None
         ephemerality_right_core = None
 
     if types == 'all' or types == 'sorted':
-        sorted_core_length = compute_sorted_core_length(frequency_vector, threshold)
-        ephemerality_sorted_core = _compute_ephemerality_from_core(sorted_core_length, range_length, threshold)
-        if ephemerality_sorted_core < 0. and not np.isclose(ephemerality_sorted_core, 0.):
-            warnings.warn(f'Sorted ephemerality value is less than 0 ({ephemerality_sorted_core}) and is going to be rounded up! '
-                          f'This is indicative of the rare edge case of very short and mostly uniform frequency vector (so '
-                          f'that ephemerality span is greater than [threshold * input_vector_length]). '
-                          f'Sorted ephemerality in this case should be considered to be equal to 0. '
-                          f'However, please double check the input vector!',
-                          RuntimeWarning)
-            ephemerality_sorted_core = 0.
+        length_sorted_core = compute_sorted_core_length(frequency_vector, threshold)
+        ephemerality_sorted_core = _compute_ephemerality_from_core(length_sorted_core, range_length, threshold)
     else:
+        length_sorted_core = None
         ephemerality_sorted_core = None
 
-    ephemeralities = EphemeralitySet(left_core=ephemerality_left_core,
-                                     middle_core=ephemerality_middle_core,
-                                     right_core=ephemerality_right_core,
-                                     sorted_core=ephemerality_sorted_core)
+    ephemeralities = EphemeralitySet(
+        len_left_core=length_left_core,
+        len_middle_core=length_middle_core,
+        len_right_core=length_right_core,
+        len_sorted_core=length_sorted_core,
+
+        eph_left_core=ephemerality_left_core,
+        eph_middle_core=ephemerality_middle_core,
+        eph_right_core=ephemerality_right_core,
+        eph_sorted_core=ephemerality_sorted_core
+    )
 
     return ephemeralities
