@@ -1,19 +1,6 @@
 import numpy as np
 from typing import Sequence
-from pydantic import BaseModel
-
-
-class EphemeralitySet(BaseModel):
-    """Class to contain ephemerality core size values by subtypes"""
-    len_left_core: int | None = None
-    len_middle_core: int | None = None
-    len_right_core: int | None = None
-    len_sorted_core: int | None = None
-
-    eph_left_core: float | None = None
-    eph_middle_core: float | None = None
-    eph_right_core: float | None = None
-    eph_sorted_core: float | None = None
+from ephemerality.utils import ResultSet
 
 
 def _check_threshold(threshold: float) -> bool:
@@ -99,7 +86,7 @@ def _compute_ephemerality_from_core(core_length: int, range_length: int, thresho
 def compute_ephemerality(
         frequency_vector: Sequence[float],
         threshold: float = 0.8,
-        types: str = 'all') -> EphemeralitySet:
+        types: str = 'lmrs') -> ResultSet:
 
     _check_threshold(threshold)
 
@@ -109,35 +96,35 @@ def compute_ephemerality(
     frequency_vector = _normalize_frequency_vector(frequency_vector)
     range_length = len(frequency_vector)
 
-    if types == 'all' or types == 'left':
+    if 'l' in types:
         length_left_core = compute_left_core_length(frequency_vector, threshold)
         ephemerality_left_core = _compute_ephemerality_from_core(length_left_core, range_length, threshold)
     else:
         length_left_core = None
         ephemerality_left_core = None
 
-    if types == 'all' or types == 'middle':
+    if 'm' in types:
         length_middle_core = compute_middle_core_length(frequency_vector, threshold)
         ephemerality_middle_core = _compute_ephemerality_from_core(length_middle_core, range_length, threshold)
     else:
         length_middle_core = None
         ephemerality_middle_core = None
 
-    if types == 'all' or types == 'right':
+    if 'r' in types:
         length_right_core = compute_right_core_length(frequency_vector, threshold)
         ephemerality_right_core = _compute_ephemerality_from_core(length_right_core, range_length, threshold)
     else:
         length_right_core =None
         ephemerality_right_core = None
 
-    if types == 'all' or types == 'sorted':
+    if 's' in types:
         length_sorted_core = compute_sorted_core_length(frequency_vector, threshold)
         ephemerality_sorted_core = _compute_ephemerality_from_core(length_sorted_core, range_length, threshold)
     else:
         length_sorted_core = None
         ephemerality_sorted_core = None
 
-    ephemeralities = EphemeralitySet(
+    ephemeralities = ResultSet(
         len_left_core=length_left_core,
         len_middle_core=length_middle_core,
         len_right_core=length_right_core,

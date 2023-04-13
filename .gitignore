@@ -1,8 +1,10 @@
 /tmp/
-/test/.pytest_cache/
-*.json
-*.pyc
-*.idea/
+**/.pytest_cache/
+**/*.json
+**/*.pyc
+**/*.idea/
 /build/
 /venv/
-tmp_*
+**/tmp_*
+**/tmp-*
+/testing/test_data/

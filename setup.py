@@ -20,7 +20,7 @@ else:
 setup(
     name='ephemerality',
     version=version,
-    packages=['ephemerality', 'test'],
+    packages=['ephemerality', 'testing'],
     url='https://github.com/HPAI-BSC/ephemerality',
     license='MIT',
     author='HPAI BSC',

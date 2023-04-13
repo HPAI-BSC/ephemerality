@@ -1,10 +1,15 @@
-from api import InputData
-from api import get_all_ephemeralities, get_left_core_ephemeralities, get_right_core_ephemeralities
-from api import get_middle_core_ephemeralities, get_sorted_core_ephemeralities
-
+from ephemerality.data_processing import InputData
+from rest.api import set_test_mode, router
+import rest.api_versions as api_versions
+from rest.api_versions import AbstractRestApi
 
 __all__ = [
     InputData,
-    get_all_ephemeralities, get_left_core_ephemeralities, get_right_core_ephemeralities,
-    get_middle_core_ephemeralities, get_sorted_core_ephemeralities
+    set_test_mode,
+    router,
+    AbstractRestApi
 ]
+
+
+API_VERSION_DICT: dict[str, AbstractRestApi] = {api.version(): api for api in api_versions.__all__ if api.version()}
+DEFAULT_API: AbstractRestApi = API_VERSION_DICT[max(API_VERSION_DICT.keys())]

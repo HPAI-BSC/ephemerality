@@ -1,7 +1,7 @@
 FROM python:3.9.15-slim
 
 ADD ephemerality /src
-ADD test /test
+ADD testing /test
 ADD rest /rest
 ADD scripts/ephemerality-cmd.py /
 ADD requirements.txt /

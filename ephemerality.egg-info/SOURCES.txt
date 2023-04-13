@@ -1,0 +1,10 @@
+README.md
+setup.py
+ephemerality.egg-info/PKG-INFO
+ephemerality.egg-info/SOURCES.txt
+ephemerality.egg-info/dependency_links.txt
+ephemerality.egg-info/top_level.txt
+src/__init__.py
+src/ephemerality_computation.py
+test/__init__.py
+test/test_ephemerality.py
