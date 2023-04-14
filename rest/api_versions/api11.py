@@ -16,4 +16,4 @@ class RestAPI11(AbstractRestApi):
                          threshold: Annotated[float, Query(gt=0., le=1.)],
                          types: Annotated[str, Query(Query(min_length=1, max_length=4, regex="^[lmrs]+$"))]
                          ) -> ResultSet:
-        return compute_ephemerality(frequency_vector=input_vector, threshold=threshold, types=types)
+        return compute_ephemerality(activity_vector=input_vector, threshold=threshold, types=types)

@@ -26,5 +26,21 @@ setup(
     author='HPAI BSC',
     author_email='dmitry.gnatyshak@bsc.es',
     description='Module for computing ephemerality metrics of temporal arrays.',
-    long_description=read('README.md')
+    long_description=read('README.md'),
+    scripts=[
+        'scripts/ephemerality-api.py',
+        'scripts/ephemerality-cmd.py'
+    ],
+    install_requires=[
+        'numpy==1.24.2',
+        'fastapi==0.95.0',
+        'setuptools==67.6.1',
+        'pydantic==1.10.7'
+    ],
+    extras_require={
+        'test':[
+            'matplotlib==3.7.1',
+            'requests==2.28.2'
+        ]
+    }
 )

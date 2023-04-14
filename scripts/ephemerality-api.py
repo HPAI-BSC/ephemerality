@@ -1,4 +1,5 @@
-from rest import api
+#!/usr/bin/env python
+
 from fastapi import FastAPI
 import sys
 from rest import set_test_mode, router

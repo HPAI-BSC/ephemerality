@@ -658,7 +658,7 @@ class TestComputeEphemerality(TestCase):
             with self.subTest():
                 print(f'\nRunning test case {i}: {test_case.input_sequence}, threshold {test_case.threshold}...')
 
-                actual_output = compute_ephemerality(frequency_vector=test_case.input_sequence,
+                actual_output = compute_ephemerality(activity_vector=test_case.input_sequence,
                                                      threshold=test_case.threshold)
 
                 try:

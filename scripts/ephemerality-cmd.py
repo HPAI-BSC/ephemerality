@@ -1,21 +1,24 @@
+#!/usr/bin/env python
+
+import argparse
+import json
+import sys
 import time
+from argparse import Namespace
+from pathlib import Path
+from typing import Union
+
+import numpy as np
+from memory_profiler import memory_usage
 
 from _version import __version__
-import sys
-from typing import Union
-import json
-import argparse
-from argparse import Namespace
-import numpy as np
-from pathlib import Path
-from memory_profiler import memory_usage
-from ephemerality import compute_ephemerality, process_input
+from ephemerality import compute_ephemerality, process_input, ProcessedData
 
 
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage="%(prog)s [FREQUENCY_VECTOR] [-h] [-v] [-i INPUT_FILE] [-o OUTPUT_FILE.json] [-t THRESHOLD]...",
-        description="Calculate ephemerality for a given vector of frequencies."
+        usage="%(prog)s [ACTIVITY_VECTOR] [-h] [-v] [-i INPUT_FILE] [-o OUTPUT_FILE.json] [-t THRESHOLD]...",
+        description="Calculate ephemerality for a given activity vector or a set of timestamps."
     )
     parser.add_argument(
         "-v", "--version", action="version",
@@ -28,7 +31,7 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument(
         "-i", "--input", action="store",
         help="Path to either a JSON or CSV file with input data, or to the folder with files. If not specified, "
-             "will read the frequency vector from the command line (delimited either by commas or spaces)."
+             "will read the activity vector from the command line (delimited either by commas or spaces)."
     )
     parser.add_argument(
         "-r", "--recursive", action="store_true",
@@ -53,8 +56,8 @@ def init_argparse() -> argparse.ArgumentParser:
              " output the peak RAM usage instead of ephemerality."
     )
     parser.add_argument(
-        'frequencies', type=float,
-        help='frequency vector (if the input file is not specified)',
+        'activity', type=float,
+        help='Activity vector (if the input file is not specified)',
         nargs='*'
     )
     return parser
@@ -66,34 +69,47 @@ def run(input_args: Namespace, supress_save_output: bool = False) -> Union[str, 
         if path.is_dir():
             input_cases = process_input(input_folder=input_args.input, recursive=input_args.recursive)
         elif path.is_file():
-            input_cases = process_input(input_file=input_args.input)
+            input_cases = process_input(input_file=input_args.input, threshold=float(input_args.threshold))
         else:
             raise ValueError("Unknown input file format!")
     else:
-        input_cases: list[tuple[np.ndarray, float]] = []
-        if len(input_args.frequencies) > 1:
-            input_cases.append((np.array(input_args.frequencies, dtype=float), float(input_args.threshold)))
-        elif len(input_args.frequencies) == 1:
-            if ' ' in input_args.frequencies[0]:
-                input_cases.append((np.array(input_args.frequencies[0].split(' '), dtype=float), float(input_args.threshold)))
+        input_cases: list[ProcessedData] = []
+        if len(input_args.activity) > 1:
+            input_cases.append(
+                ProcessedData(
+                    name="cmd-input",
+                    activity=np.array(input_args.activity, dtype=float),
+                    threshold=float(input_args.threshold)))
+        elif len(input_args.activity) == 1:
+            if ' ' in input_args.activity[0]:
+                input_cases.append(
+                    ProcessedData(
+                        name="cmd-input",
+                        activity=np.array(input_args.activity[0].split(' '), dtype=float),
+                        threshold=float(input_args.threshold)))
             else:
-                input_cases.append((np.array(input_args.frequencies[0].split(','), dtype=float), float(input_args.threshold)))
+                input_cases.append(
+                    ProcessedData(
+                        name="cmd-input",
+                        activity=np.array(input_args.activity[0].split(','), dtype=float),
+                        threshold=float(input_args.threshold)))
         else:
             sys.exit('No input provided!')
 
-    ephemerality_list = list()
-    for frequency_vector, threshold in input_cases:
-        ephemerality_list.append(compute_ephemerality(frequency_vector=frequency_vector, threshold=threshold).dict())
+    results = {}
+    for input_case in input_cases:
+        results[input_case.name] = (compute_ephemerality(activity_vector=input_case.activity,
+                                                         threshold=input_case.threshold).dict())
 
     if input_args.output and not supress_save_output:
         with open(input_args.output, 'w+') as f:
-            json.dump(ephemerality_list, f, indent=2)
+            json.dump(results, f, indent=2)
         if input_args.print:
-            return json.dumps(ephemerality_list, indent=2)
+            return json.dumps(results, indent=2)
         else:
             return None
     else:
-        return json.dumps(ephemerality_list, indent=2)
+        return json.dumps(results, indent=2)
 
 
 if __name__ == '__main__':
