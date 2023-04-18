@@ -1,5 +1,5 @@
-from ephemerality.ephemerality_computation import compute_ephemerality
-from ephemerality.data_processing import process_input, InputData, ProcessedData
-from ephemerality.utils import ResultSet
+from ephemerality import compute_ephemerality
+from ephemerality import ResultSet as EphemeralitySet
 
-__all__ = [compute_ephemerality, ResultSet, process_input, InputData, ProcessedData]
+
+__all__ = [compute_ephemerality, EphemeralitySet]

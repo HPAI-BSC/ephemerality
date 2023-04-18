@@ -20,27 +20,25 @@ else:
 setup(
     name='ephemerality',
     version=version,
-    packages=['ephemerality', 'testing'],
+    packages=['ephemerality'],
     url='https://github.com/HPAI-BSC/ephemerality',
     license='MIT',
+    license_files=['./LICENSE'],
     author='HPAI BSC',
     author_email='dmitry.gnatyshak@bsc.es',
-    description='Module for computing ephemerality metrics of temporal arrays.',
+    description='Module for computing ephemerality metrics of temporal activity arrays.',
     long_description=read('README.md'),
-    scripts=[
-        'scripts/ephemerality-api.py',
-        'scripts/ephemerality-cmd.py'
-    ],
+    scripts=[],
     install_requires=[
-        'numpy==1.24.2',
-        'fastapi==0.95.0',
-        'setuptools==67.6.1',
-        'pydantic==1.10.7'
+        'numpy~=1.24.2',
+        'fastapi~=0.95.1',
+        'setuptools~=67.6.1',
+        'pydantic~=1.10.7',
+        'uvicorn~=0.21.1'
     ],
     extras_require={
-        'test':[
-            'matplotlib==3.7.1',
-            'requests==2.28.2'
+        'test': [
+            'requests~=2.28.2'
         ]
     }
 )

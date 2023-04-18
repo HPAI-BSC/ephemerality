@@ -50,11 +50,11 @@ def compute_right_core_length(activity_vector: np.array, threshold: float) -> in
 def compute_middle_core_length(activity_vector: np.array, threshold: float) -> int:
     lower_threshold = (1. - threshold) / 2
 
-    current_presum = 0
+    current_left_sum = 0
     start_index = -1
     for i, freq in enumerate(activity_vector):
-        current_presum += freq
-        if current_presum > lower_threshold and not np.isclose(current_presum, lower_threshold):
+        current_left_sum += freq
+        if current_left_sum > lower_threshold and not np.isclose(current_left_sum, lower_threshold):
             start_index = i
             break
 
@@ -114,7 +114,7 @@ def compute_ephemerality(
         length_right_core = compute_right_core_length(activity_vector, threshold)
         ephemerality_right_core = _compute_ephemerality_from_core(length_right_core, range_length, threshold)
     else:
-        length_right_core =None
+        length_right_core = None
         ephemerality_right_core = None
 
     if 's' in types:

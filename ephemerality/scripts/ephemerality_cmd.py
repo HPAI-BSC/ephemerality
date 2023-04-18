@@ -1,45 +1,33 @@
-#!/usr/bin/env python
-
-import argparse
+from argparse import ArgumentParser, Namespace, SUPPRESS
 import json
 import sys
-import time
-from argparse import Namespace
 from pathlib import Path
-from typing import Union
 
 import numpy as np
-from memory_profiler import memory_usage
 
-from _version import __version__
 from ephemerality import compute_ephemerality, process_input, ProcessedData
 
 
-def init_argparse() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        usage="%(prog)s [ACTIVITY_VECTOR] [-h] [-v] [-i INPUT_FILE] [-o OUTPUT_FILE.json] [-t THRESHOLD]...",
-        description="Calculate ephemerality for a given activity vector or a set of timestamps."
-    )
-    parser.add_argument(
-        "-v", "--version", action="version",
-        version=f"{parser.prog} version {__version__}"
-    )
+def init_cmd_parser(parser: ArgumentParser) -> ArgumentParser:
+    parser.usage = "%(prog)s [activity] [-h] [-i INPUT_FILE] [-r] [-o OUTPUT_FILE.json] [-t THRESHOLD]..."
+    parser.description = "Calculate ephemerality for a given activity vector or a set of timestamps."
     parser.add_argument(
         "-p", "--print", action="store_true",
-        help="If output file is provided, forces the results to still be printed to stdout."
+        help="If an output file is specified, forces the results to still be printed to stdout."
     )
     parser.add_argument(
         "-i", "--input", action="store",
         help="Path to either a JSON or CSV file with input data, or to the folder with files. If not specified, "
-             "will read the activity vector from the command line (delimited either by commas or spaces)."
+             "will read the activity vector from the command line (as numbers delimited by either commas or spaces)."
     )
     parser.add_argument(
         "-r", "--recursive", action="store_true",
-        help="Used with a folder --input to specify to also process the files in the full subfolder tree."
+        help="Used with a folder-type input to specify to also process files in the full subfolder tree. "
+             "Defaults to False."
     )
     parser.add_argument(
         "-o", "--output", action="store",
-        help="Path to the output json file. If not specified, will output ephemerality values to stdout in JSON format."
+        help="Path to an output JSON file. If not specified, will output ephemerality values to stdout in JSON format."
     )
     parser.add_argument(
         "-t", "--threshold", action="store", type=float, default=0.8,
@@ -47,23 +35,24 @@ def init_argparse() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--test_time_reps", action="store", type=int, default=0,
-        help="If greater than 0, the script runs in measure performance mode for the specified number of times and"
-             " output the computation time instead of ephemerality. Defaults to 0."
+        help=SUPPRESS
     )
     parser.add_argument(
         "--test_ram_reps", action="store", type=int, default=0,
-        help="If greater than 0, the script runs in measure performance mode for the specified number of times and"
-             " output the peak RAM usage instead of ephemerality."
+        help=SUPPRESS
     )
     parser.add_argument(
         'activity', type=float,
         help='Activity vector (if the input file is not specified)',
         nargs='*'
     )
+    parser.set_defaults(
+        func=exec_cmd_compute_call
+    )
     return parser
 
 
-def run(input_args: Namespace, supress_save_output: bool = False) -> Union[str, None]:
+def exec_cmd_compute_call(input_args: Namespace) -> None:
     if input_args.input:
         path = Path(input_args.input)
         if path.is_dir():
@@ -101,46 +90,46 @@ def run(input_args: Namespace, supress_save_output: bool = False) -> Union[str, 
         results[input_case.name] = (compute_ephemerality(activity_vector=input_case.activity,
                                                          threshold=input_case.threshold).dict())
 
-    if input_args.output and not supress_save_output:
+    if input_args.output:
         with open(input_args.output, 'w+') as f:
             json.dump(results, f, indent=2)
         if input_args.print:
-            return json.dumps(results, indent=2)
+            print(json.dumps(results, indent=2))
         else:
             return None
     else:
-        return json.dumps(results, indent=2)
+        print(json.dumps(results, indent=2))
 
 
-if __name__ == '__main__':
-    parser = init_argparse()
-    args = parser.parse_args()
-
-    if args.test_time_reps == 0 and args.test_ram_reps == 0:
-        output = run(args)
-        if output:
-            print(output)
-    else:
-        output = {}
-        if args.test_time_reps > 0:
-            times = []
-            for i in range(args.test_time_reps):
-                start_time = time.time()
-                run(input_args=args, supress_save_output=True)
-                times.append(time.time() - start_time)
-            output["time"] = times
-        if args.test_ram_reps > 0:
-            rams = []
-            for i in range(args.test_ram_reps):
-                rams.append(memory_usage(
-                    (run, [], {"input_args": args, "supress_save_output": True}),
-                    max_usage=True
-                )[0])
-            output["RAM"] = rams
-        if args.output:
-            with open(args.output, 'w+') as f:
-                json.dump(output, f, indent=2)
-            if args.print:
-                print(json.dumps(output, indent=2))
-        else:
-            print(json.dumps(output, indent=2))
+# if __name__ == '__main__':
+#     parser = init_cmd_argparse()
+#     args = parser.parse_args()
+#
+#     if args.test_time_reps == 0 and args.test_ram_reps == 0:
+#         output = run(input_args=args)
+#         if output:
+#             print(output)
+#     else:
+#         output = {}
+#         if args.test_time_reps > 0:
+#             times = []
+#             for i in range(args.test_time_reps):
+#                 start_time = time.time()
+#                 run(input_args=args, supress_save_output=True)
+#                 times.append(time.time() - start_time)
+#             output["time"] = times
+#         if args.test_ram_reps > 0:
+#             rams = []
+#             for i in range(args.test_ram_reps):
+#                 rams.append(memory_usage(
+#                     (run, [], {"input_args": args, "supress_save_output": True}),
+#                     max_usage=True
+#                 )[0])
+#             output["RAM"] = rams
+#         if args.output:
+#             with open(args.output, 'w+') as f:
+#                 json.dump(output, f, indent=2)
+#             if args.print:
+#                 print(json.dumps(output, indent=2))
+#         else:
+#             print(json.dumps(output, indent=2))

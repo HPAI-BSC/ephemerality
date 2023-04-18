@@ -4,7 +4,7 @@ from typing import Annotated, Any, Union
 import sys
 import time
 import rest
-from ephemerality.data_processing import InputData, process_input
+from ephemerality import InputData, process_input
 from memory_profiler import memory_usage
 
 
@@ -38,7 +38,7 @@ async def compute_all_ephemeralities(
         input_data: list[InputData],
         core_types: Annotated[
             str, Query(min_length=1, max_length=4, regex="^[lmrs]+$")
-        ]="lmrs",
+        ] = "lmrs",
         api_version: str | None = None,
         test_time_reps: Annotated[
             int | None, Query(ge=1)
@@ -46,8 +46,8 @@ async def compute_all_ephemeralities(
         test_ram_reps: Annotated[
             int | None, Query(ge=1)
         ] = None,
-        include_input: bool=True,
-        explainations: bool=True
+        include_input: bool = True,
+        explanations: bool = True
 ) -> Response:
 
     if api_version is None:

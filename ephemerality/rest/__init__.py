@@ -1,7 +1,7 @@
-from ephemerality.data_processing import InputData
-from rest.api import set_test_mode, router
+from ephemerality import InputData
 import rest.api_versions as api_versions
 from rest.api_versions import AbstractRestApi
+from rest.api import set_test_mode, router
 
 __all__ = [
     InputData,

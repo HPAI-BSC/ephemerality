@@ -22,8 +22,8 @@ class InputData(BaseModel):
     threshold: float = 0.8
     time_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"  # used only if input_type == 'datetime' | 'd'. Should be in strptime format
     timezone: float = 0.  # used only if input_type == 'datetime' | 'd'. Offset in hours from the UTC time. Should be within [-24, +24] range.
-    range: None | tuple[str, str] = None  # used only if input_type == 'timestamps' | 't' | 'datetime' | 'd',
-                                          # defaults to (min(input), max(input))
+    range: None | tuple[
+        str, str] = None  # used only if input_type == 'timestamps' | 't' | 'datetime' | 'd', defaults to (min(input), max(input))
     granularity: None | str = 'day'  # used only if input_type == 'timestamps' | 't' | 'datetime' | 'd'. {'week', 'day', 'hour', '_d', '_h'}
     reference_name: str = ""
 
@@ -42,7 +42,7 @@ def process_input(
         input_remote_data: InputData | None = None,
         input_dict: dict | None = None,
         input_seq: Sequence[float | int | str] | None = None,
-        threshold: float=0.8) -> list[ProcessedData]:
+        threshold: float = 0.8) -> list[ProcessedData]:
     output = []
 
     if input_folder:
@@ -63,6 +63,7 @@ def process_input(
         output.append(ProcessedData(name="sequence", activity=np.ndarray(input_seq, dtype=float), threshold=threshold))
 
     return output
+
 
 def process_folder(path: Path, recursive: bool = True, threshold: float | None = None) -> list[ProcessedData]:
     output = []
@@ -100,8 +101,9 @@ def process_json(path: Path) -> list[ProcessedData]:
                 case_output.name = f"{str(path.absolute())}[{i}]"
             output.append(case_output)
         except ValueError:
-            warnings.warn(f'\"input_type\" is not one of [\"activity\", \"a\", \"timestamps\", \"t\", \"datetime\", \"d\"]!'
-                          f' Ignoring file \"{str(path.absolute())}\"!')
+            warnings.warn(
+                f'\"input_type\" is not one of [\"activity\", \"a\", \"timestamps\", \"t\", \"datetime\", \"d\"]!'
+                f' Ignoring file \"{str(path.absolute())}\"!')
 
     return output
 
@@ -122,7 +124,8 @@ def process_formatted_data(input_data: InputData) -> ProcessedData:
             threshold=input_data.threshold
         )
     elif input_data.input_type == 'datetime' or input_data.input_type == 'd':
-        timestamps = [datetime.strptime(time_point, input_data.time_format).replace(tzinfo=timezone(timedelta(hours=input_data.timezone))).timestamp()
+        timestamps = [datetime.strptime(time_point, input_data.time_format).replace(
+            tzinfo=timezone(timedelta(hours=input_data.timezone))).timestamp()
                       for time_point in input_data.input]
         if input_data.range is not None:
             ts_range = (
