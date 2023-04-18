@@ -2,12 +2,12 @@ import os
 from setuptools import setup
 import re
 
-VERSION_FILE = "_version.py"
+VERSION_FILE = "ephemerality/_version.py"
 VERSION_REGEX = r"^__version__ = ['\"]([^'\"]*)['\"]"
 
 
 def read(file_name):
-    return open(os.path.join(os.path.dirname(__file__), file_name)).read()
+    return open(os.path.join(os.path.dirname(__file__), file_name), 'rt').read()
 
 
 version_lines = open(VERSION_FILE, 'r').read()
@@ -38,7 +38,8 @@ setup(
     ],
     extras_require={
         'test': [
-            'requests~=2.28.2'
+            'requests~=2.28.2',
+            'memory-profiler~=0.61.0'
         ]
     }
 )

@@ -1,11 +1,10 @@
-from argparse import ArgumentParser, Namespace, SUPPRESS
 import json
 import sys
+from argparse import ArgumentParser, Namespace, SUPPRESS
 from pathlib import Path
 
 import numpy as np
-
-from ephemerality import compute_ephemerality, process_input, ProcessedData
+from ephemerality.src import compute_ephemerality, process_input, ProcessedData
 
 
 def init_cmd_parser(parser: ArgumentParser) -> ArgumentParser:

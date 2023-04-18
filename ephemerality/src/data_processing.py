@@ -1,12 +1,12 @@
-import numpy as np
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-from pydantic import BaseModel
-from typing import Sequence
 import json
 import warnings
 from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+from typing import Sequence
 
+import numpy as np
+from pydantic import BaseModel
 
 SECONDS_WEEK = 604800.
 SECONDS_DAY = 86400.
@@ -79,7 +79,7 @@ def process_file(path: Path, threshold: float | None = None) -> list[ProcessedDa
     if path.suffix == '.json':
         return process_json(path)
     elif path.suffix == '.csv':
-        return [ProcessedData(name=f"{str(path.absolute())}[{i}]", activity=sequence, threshold=threshold)
+        return [ProcessedData(name=f"{str(path.resolve())}[{i}]", activity=sequence, threshold=threshold)
                 for i, sequence in enumerate(process_csv(path))]
     else:
         return []
@@ -98,12 +98,12 @@ def process_json(path: Path) -> list[ProcessedData]:
         try:
             case_output = process_formatted_data(input_case)
             if not case_output.name:
-                case_output.name = f"{str(path.absolute())}[{i}]"
+                case_output.name = f"{str(path.resolve())}[{i}]"
             output.append(case_output)
         except ValueError:
             warnings.warn(
                 f'\"input_type\" is not one of [\"activity\", \"a\", \"timestamps\", \"t\", \"datetime\", \"d\"]!'
-                f' Ignoring file \"{str(path.absolute())}\"!')
+                f' Ignoring file \"{str(path.resolve())}\"!')
 
     return output
 

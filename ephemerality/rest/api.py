@@ -1,12 +1,12 @@
-from fastapi import APIRouter, status, Query, Response
-from fastapi.responses import JSONResponse
-from typing import Annotated, Any, Union
 import sys
 import time
-import rest
-from ephemerality import InputData, process_input
-from memory_profiler import memory_usage
+from typing import Annotated, Any, Union
 
+import ephemerality.rest as rest
+from ephemerality.src import InputData, process_input
+from fastapi import APIRouter, status, Query, Response
+from fastapi.responses import JSONResponse
+from memory_profiler import memory_usage
 
 TEST_MODE = len(sys.argv) > 1 and sys.argv[1] == 'test'
 router = APIRouter()
@@ -21,8 +21,13 @@ def run_computations(input_data: list[InputData], core_types: str, api: rest.Abs
         -> Union[list[dict[str, Any] | dict[str, dict[str, Any]]], None]:
     output = []
     for test_case in input_data:
-        vector, threshold = process_input(input_remote_data=test_case)
-        case_output = api.get_ephemerality(input_vector=vector, threshold=threshold, types=core_types).dict(exclude_none=True)
+        case_input = process_input(input_remote_data=test_case)[0]
+        case_output = api.get_ephemerality(
+            input_vector=case_input.activity,
+            threshold=case_input.threshold,
+            types=core_types
+        ).dict(exclude_none=True)
+
         if include_input:
             output.append({
                 "input": test_case.dict(),
@@ -33,26 +38,16 @@ def run_computations(input_data: list[InputData], core_types: str, api: rest.Abs
     return output
 
 
-@router.post("/ephemerality/{api_version}/all", status_code=status.HTTP_200_OK)
-async def compute_all_ephemeralities(
+def process_request(
         input_data: list[InputData],
-        core_types: Annotated[
-            str, Query(min_length=1, max_length=4, regex="^[lmrs]+$")
-        ] = "lmrs",
-        api_version: str | None = None,
-        test_time_reps: Annotated[
-            int | None, Query(ge=1)
-        ] = None,
-        test_ram_reps: Annotated[
-            int | None, Query(ge=1)
-        ] = None,
-        include_input: bool = True,
-        explanations: bool = True
+        api_version: str,
+        core_types: str,
+        test_time_reps: int | None,
+        test_ram_reps: int | None,
+        include_input: bool,
+        explanations: bool
 ) -> Response:
-
-    if api_version is None:
-        api = rest.DEFAULT_API
-    elif api_version not in rest.API_VERSION_DICT:
+    if api_version not in rest.API_VERSION_DICT:
         raise ValueError(f'Unrecognized API version: {api_version}!')
     else:
         api = rest.API_VERSION_DICT[api_version]
@@ -79,3 +74,58 @@ async def compute_all_ephemeralities(
     else:
         output = run_computations(input_data=input_data, core_types=core_types, api=api, include_input=include_input)
         return JSONResponse(content=output)
+
+
+@router.post("/ephemerality/all", status_code=status.HTTP_200_OK)
+async def compute_all_ephemeralities_default_version(
+        input_data: list[InputData],
+        core_types: Annotated[
+            str, Query(min_length=1, max_length=4, regex="^[lmrs]+$")
+        ] = "lmrs",
+        test_time_reps: Annotated[
+            int | None, Query(ge=1)
+        ] = None,
+        test_ram_reps: Annotated[
+            int | None, Query(ge=1)
+        ] = None,
+        include_input: bool = False,
+        explanations: bool = False
+) -> Response:
+    default_version = rest.DEFAULT_API.version()
+    return process_request(
+        input_data=input_data,
+        core_types=core_types,
+        api_version=default_version,
+        test_time_reps=test_time_reps,
+        test_ram_reps=test_ram_reps,
+        include_input=include_input,
+        explanations=explanations
+    )
+
+
+@router.post("/ephemerality/{api_version}/all", status_code=status.HTTP_200_OK)
+async def compute_all_ephemeralities(
+        input_data: list[InputData],
+        api_version: str,
+        core_types: Annotated[
+            str, Query(min_length=1, max_length=4, regex="^[lmrs]+$")
+        ] = "lmrs",
+        test_time_reps: Annotated[
+            int | None, Query(ge=1)
+        ] = None,
+        test_ram_reps: Annotated[
+            int | None, Query(ge=1)
+        ] = None,
+        include_input: bool = False,
+        explanations: bool = False
+) -> Response:
+
+    return process_request(
+        input_data=input_data,
+        core_types=core_types,
+        api_version=api_version,
+        test_time_reps=test_time_reps,
+        test_ram_reps=test_ram_reps,
+        include_input=include_input,
+        explanations=explanations
+    )

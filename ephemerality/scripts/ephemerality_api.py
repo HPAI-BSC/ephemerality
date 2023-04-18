@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, Namespace
 from subprocess import call
-from rest import set_test_mode
+
+from ephemerality.rest import set_test_mode
 
 
 def init_api_argparse(parser: ArgumentParser) -> ArgumentParser:
@@ -27,7 +28,7 @@ def init_api_argparse(parser: ArgumentParser) -> ArgumentParser:
 
 def start_service(host: str = "127.0.0.1", port: int = 8080, test_mode: bool = False) -> None:
     set_test_mode(test_mode)
-    call(['uvicorn', 'rest.runner:app', '--host', host, '--port', str(port)])
+    call(['uvicorn', 'ephemerality.rest.runner:app', '--host', host, '--port', str(port)])
 
 
 def exec_start_service_call(input_args: Namespace) -> None:

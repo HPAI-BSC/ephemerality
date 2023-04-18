@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Annotated, Sequence
 from fastapi import Query
-from ephemerality import ResultSet
+from ephemerality.src import ResultSet
 
 
 class AbstractRestApi(ABC):

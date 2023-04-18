@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
-from ephemerality.scripts import init_cmd_parser, init_api_argparse
-from _version import __version__
 
+from ephemerality._version import __version__
+from ephemerality.scripts import init_cmd_parser, init_api_argparse
 
 PROG = "python3 -m ephemerality"
 

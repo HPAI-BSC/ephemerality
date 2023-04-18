@@ -1,6 +1,7 @@
-import numpy as np
 from typing import Sequence
-from ephemerality.utils import ResultSet
+
+import numpy as np
+from ephemerality.src.utils import ResultSet
 
 
 def _check_threshold(threshold: float) -> bool:

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from rest import router
+from ephemerality.rest import router
 
 
 app = FastAPI()
