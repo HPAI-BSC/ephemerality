@@ -20,6 +20,7 @@ def set_test_mode(mode: bool) -> None:
 def run_computations(input_data: list[InputData], core_types: str, api: rest.AbstractRestApi, include_input: bool = False)\
         -> Union[list[dict[str, Any] | dict[str, dict[str, Any]]], None]:
     output = []
+    noname_counter = 0
     for test_case in input_data:
         case_input = process_input(input_remote_data=test_case)[0]
         case_output = api.get_ephemerality(
@@ -34,7 +35,16 @@ def run_computations(input_data: list[InputData], core_types: str, api: rest.Abs
                 "output": case_output
             })
         else:
-            output.append(case_output)
+            if test_case.reference_name:
+                input_name = test_case.reference_name
+            else:
+                input_name = str(noname_counter)
+                noname_counter += 1
+
+            output.append({
+                "input": input_name,
+                "output": case_output
+            })
     return output
 
 
@@ -67,7 +77,7 @@ def process_request(
                 rams.append(memory_usage(
                     (run_computations, [], {"input_data": input_data, "core_types": core_types, "api": api}),
                     max_usage=True
-                )[0])
+                ))
             output["RAM"] = rams
 
         return JSONResponse(content=output)

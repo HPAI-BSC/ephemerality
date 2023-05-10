@@ -1,7 +1,9 @@
 import json
 import sys
+import time
 from argparse import ArgumentParser, Namespace, SUPPRESS
 from pathlib import Path
+from memory_profiler import memory_usage
 
 import numpy as np
 from ephemerality.src import compute_ephemerality, process_input, ProcessedData
@@ -27,6 +29,11 @@ def init_cmd_parser(parser: ArgumentParser) -> ArgumentParser:
     parser.add_argument(
         "-o", "--output", action="store",
         help="Path to an output JSON file. If not specified, will output ephemerality values to stdout in JSON format."
+    )
+    parser.add_argument(
+        "--output_indent", action="store", type=int, default=-1,
+        help="Sets the indentation level of the output (either a JSON file or STDOUT) in terms of number of spaces per "
+             "level. If negative, will output results as a single line. Defaults to -1."
     )
     parser.add_argument(
         "-t", "--threshold", action="store", type=float, default=0.8,
@@ -85,50 +92,39 @@ def exec_cmd_compute_call(input_args: Namespace) -> None:
             sys.exit('No input provided!')
 
     results = {}
-    for input_case in input_cases:
-        results[input_case.name] = (compute_ephemerality(activity_vector=input_case.activity,
-                                                         threshold=input_case.threshold).dict())
 
+    if input_args.test_time_reps > 0 or input_args.test_ram_reps > 0:
+        if input_args.test_time_reps:
+            for input_case in input_cases:
+                results["time"] = dict()
+                times = []
+                for i in range(input_args.test_time_reps):
+                    start_time = time.time()
+                    compute_ephemerality(activity_vector=input_case.activity, threshold=input_case.threshold).dict()
+                    times.append(time.time() - start_time)
+                results["time"][input_case.name] = times
+        if input_args.test_ram_reps:
+            for input_case in input_cases:
+                results["RAM"] = dict()
+                rams = []
+                for i in range(input_args.test_ram_reps):
+                    rams.append(memory_usage(
+                        (compute_ephemerality, [], {"activity_vector": input_case.activity, "threshold": input_case.threshold}),
+                        max_usage=True
+                    ))
+                results["RAM"][input_case.name] = rams
+    else:
+        for input_case in input_cases:
+            results[input_case.name] = compute_ephemerality(activity_vector=input_case.activity,
+                                                            threshold=input_case.threshold).dict()
+
+    output_indent = input_args.output_indent if input_args.output_indent >= 0 else None
     if input_args.output:
-        with open(input_args.output, 'w+') as f:
-            json.dump(results, f, indent=2)
+        with open(input_args.output, 'w') as f:
+            json.dump(results, f, indent=output_indent, sort_keys=True)
         if input_args.print:
-            print(json.dumps(results, indent=2))
+            print(json.dumps(results, indent=output_indent, sort_keys=True))
         else:
             return None
     else:
-        print(json.dumps(results, indent=2))
-
-
-# if __name__ == '__main__':
-#     parser = init_cmd_argparse()
-#     args = parser.parse_args()
-#
-#     if args.test_time_reps == 0 and args.test_ram_reps == 0:
-#         output = run(input_args=args)
-#         if output:
-#             print(output)
-#     else:
-#         output = {}
-#         if args.test_time_reps > 0:
-#             times = []
-#             for i in range(args.test_time_reps):
-#                 start_time = time.time()
-#                 run(input_args=args, supress_save_output=True)
-#                 times.append(time.time() - start_time)
-#             output["time"] = times
-#         if args.test_ram_reps > 0:
-#             rams = []
-#             for i in range(args.test_ram_reps):
-#                 rams.append(memory_usage(
-#                     (run, [], {"input_args": args, "supress_save_output": True}),
-#                     max_usage=True
-#                 )[0])
-#             output["RAM"] = rams
-#         if args.output:
-#             with open(args.output, 'w+') as f:
-#                 json.dump(output, f, indent=2)
-#             if args.print:
-#                 print(json.dumps(output, indent=2))
-#         else:
-#             print(json.dumps(output, indent=2))
+        print(json.dumps(results, indent=output_indent, sort_keys=True))

@@ -7,6 +7,7 @@
 **/venv/
 **/tmp_*
 **/tmp-*
-**/testing/
 **/test/
 **/*.egg-info/
+/testing/test_data/*
+/testing/test_output

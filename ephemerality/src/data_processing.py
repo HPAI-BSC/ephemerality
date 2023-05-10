@@ -17,7 +17,7 @@ class InputData(BaseModel):
     """
     POST request body format
     """
-    input: list[str]
+    input_sequence: list[str]
     input_type: str = 'a'  # 'activity' | 'a' | 'timestamps' | 't' | 'datetime' | 'd'
     threshold: float = 0.8
     time_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"  # used only if input_type == 'datetime' | 'd'. Should be in strptime format
@@ -112,13 +112,13 @@ def process_formatted_data(input_data: InputData) -> ProcessedData:
     if input_data.input_type == 'activity' or input_data.input_type == 'a':
         return ProcessedData(
             name=input_data.reference_name,
-            activity=np.array(input_data.input, dtype=float),
+            activity=np.array(input_data.input_sequence, dtype=float),
             threshold=input_data.threshold
         )
     elif input_data.input_type == 'timestamps' or input_data.input_type == 't':
         return ProcessedData(
             name=input_data.reference_name,
-            activity=timestamps_to_activity(np.array(input_data.input, dtype=float),
+            activity=timestamps_to_activity(np.array(input_data.input_sequence, dtype=float),
                                             input_data.range,
                                             input_data.granularity),
             threshold=input_data.threshold
@@ -126,7 +126,7 @@ def process_formatted_data(input_data: InputData) -> ProcessedData:
     elif input_data.input_type == 'datetime' or input_data.input_type == 'd':
         timestamps = [datetime.strptime(time_point, input_data.time_format).replace(
             tzinfo=timezone(timedelta(hours=input_data.timezone))).timestamp()
-                      for time_point in input_data.input]
+                      for time_point in input_data.input_sequence]
         if input_data.range is not None:
             ts_range = (
                 datetime.strptime(input_data.range[0], input_data.time_format).replace(

@@ -39,7 +39,8 @@ setup(
     extras_require={
         'test': [
             'requests~=2.28.2',
-            'memory-profiler~=0.61.0'
+            'memory-profiler~=0.61.0',
+            'pytest~=7.3.1'
         ]
     }
 )
