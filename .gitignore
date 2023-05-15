@@ -11,3 +11,4 @@
 **/*.egg-info/
 /testing/test_data/*
 /testing/test_output
+*.dat
